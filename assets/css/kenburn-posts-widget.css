@@ -174,7 +174,12 @@
     -moz-opacity: 0.8;
     filter: alpha(opacity=80);
   }
-
+   .btn-white {
+    background-color: #6f42a2;
+    color: #fff;
+    border-color: #6f42a2;
+    text-decoration: underline;
+  }
   /*! CSS Used from: Embedded */
   * {
     box-sizing: border-box;
