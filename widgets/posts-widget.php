@@ -327,6 +327,16 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
+		$this->add_control(
+            'btn_title',
+            [
+                'label' => esc_html__('Button Title', 'hz-widgets'),
+                'type' => \Elementor\Controls_Manager::TEXT,
+                'default' => esc_html__('Read full post', 'hz-widgets'),
+                'label_block' => true,
+            ]
+        );
+
 	
 		$this->end_controls_section();
 
@@ -531,7 +541,7 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
                                         <div class="overlay-grad"></div>
                                         <div class="overlay">
                                             <div class="btn btn-white btn-md"
-                                                style="opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0);">Read full post</div>
+                                                style="opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0);"><?php echo $settings['btn_title']; ?></div>
                                         </div>
                                     </div>
                                 </a>
