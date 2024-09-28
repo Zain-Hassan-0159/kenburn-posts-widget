@@ -97,6 +97,66 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 		return [ 'kenburn-posts-widget' ];
 	}
 
+	private function get_posts_titles_ids() {
+		// Retrieve all registered post types
+		$post_types = get_post_types(array('public' => true), 'names', 'and');
+	
+		// Initialize an empty array to store post titles and IDs
+		$posts_array = array();
+	
+		// Loop through each post type
+		foreach ($post_types as $post_type) {
+			// Retrieve all posts of the current post type
+			$posts = get_posts(array(
+				'posts_per_page' => -1,
+				'post_type'      => $post_type,
+				'post_status'    => 'publish',
+			));
+	
+			// Loop through each post and add its title and ID to the array
+			foreach ($posts as $post) {
+				$posts_array[$post->ID] = esc_html__($post->post_title, 'hz-widgets');
+			}
+		}
+	
+		// Return the array
+		return $posts_array;
+	}
+	
+
+	/**
+	 * Get all terms with their term IDs (keys) and prefixed names (taxonomy: term name).
+	 *
+	 * @return array Array of terms with term ID as key and 'taxonomy: term name' as value.
+	 */
+	function get_all_terms_with_taxonomy_prefix() {
+		// Get all registered taxonomies
+		$taxonomies = get_taxonomies( array( 'public' => true ), 'names' ); // Get public taxonomies
+		$terms_array = array();
+
+		// Get terms from the specified taxonomies
+		$terms = get_terms( array(
+			'taxonomy'   => $taxonomies,
+			'hide_empty' => false, // Show terms even if they are not associated with any posts
+		) );
+
+		// Check if terms were retrieved
+		if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
+			// Loop through each term and store its ID and prefixed name
+			foreach ( $terms as $term ) {
+				// Get the taxonomy name (e.g., 'category', 'post_tag', or custom taxonomy)
+				$taxonomy_prefix = $term->taxonomy;
+				
+				// Store the term ID as key and 'taxonomy: term name' as value
+				$terms_array[ $taxonomy_prefix . ':' . $term->term_id ] = $taxonomy_prefix . ': ' . $term->name;
+			}
+		}
+
+		return $terms_array;
+	}
+
+
+
 
 	/**
 	 * Register list widget controls.
@@ -135,6 +195,112 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				'default' => 6,
 			]
 		);
+
+		$this->start_controls_tabs(
+			'query_tabs'
+		);
+		
+		$this->start_controls_tab(
+			'include',
+			[
+				'label' => esc_html__( 'Include', 'hz-widgets' ),
+			]
+		);
+
+		$this->add_control(
+			'include_posts_by',
+			[
+				'label' => esc_html__( 'Include By', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SELECT2,
+				'label_block' => true,
+				'multiple' => false,
+				'options' => [
+					'title' => 'Post Title',
+					'terms' => 'Terms',
+				],
+				'default' => [],
+			]
+		);
+
+		$this->add_control(
+			'include_posts_titles',
+			[
+				'label' => esc_html__( 'Post Titles', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SELECT2,
+				'label_block' => true,
+				'multiple' => true,
+				'options' => $this->get_posts_titles_ids(),
+				'default' => [],
+				'condition' => [ 'include_posts_by' => 'title' ]
+			]
+		);
+
+		$this->add_control(
+			'include_posts_terms',
+			[
+				'label' => esc_html__( 'Terms', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SELECT2,
+				'label_block' => true,
+				'multiple' => true,
+				'options' => $this->get_all_terms_with_taxonomy_prefix(),
+				'default' => [],
+				'condition' => [ 'include_posts_by' => 'terms' ]
+			]
+		);
+		
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'exclude',
+			[
+				'label' => esc_html__( 'Exclude', 'hz-widgets' ),
+			]
+		);
+
+		$this->add_control(
+			'exclude_posts_by',
+			[
+				'label' => esc_html__( 'Exclude By', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SELECT2,
+				'label_block' => true,
+				'multiple' => false,
+				'options' => [
+					'title' => 'Post Title',
+					'terms' => 'Terms',
+				],
+				'default' => [],
+			]
+		);
+
+		$this->add_control(
+			'exclude_posts_titles',
+			[
+				'label' => esc_html__( 'Post Titles', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SELECT2,
+				'label_block' => true,
+				'multiple' => true,
+				'options' => $this->get_posts_titles_ids(),
+				'default' => [],
+				'condition' => [ 'exclude_posts_by' => 'title' ]
+			]
+		);
+
+		$this->add_control(
+			'exclude_posts_terms',
+			[
+				'label' => esc_html__( 'Terms', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SELECT2,
+				'label_block' => true,
+				'multiple' => true,
+				'options' => $this->get_all_terms_with_taxonomy_prefix(),
+				'default' => [],
+				'condition' => [ 'exclude_posts_by' => 'terms' ]
+			]
+		);
+		
+		$this->end_controls_tab();
+		
+		$this->end_controls_tabs();
 
 		$this->add_control(
 			'order_by',
@@ -274,14 +440,72 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 
-		$the_query = new WP_Query( 
-			array( 
-			  'posts_per_page' => $settings['no_of_posts'], 
-			  'post_type' => $settings['post_type'],
-			  'orderby' => $settings['order_by'], 
-			  'order' => $settings['order'], 
-			) 
+		// Start building the WP_Query arguments
+		$args = array(
+			'posts_per_page' => $settings['no_of_posts'], 
+			'post_type'      => $settings['post_type'],
+			'orderby'        => $settings['order_by'], 
+			'order'          => $settings['order'], 
 		);
+
+		// Include by post title
+		if ( 'title' === $settings['include_posts_by'] && ! empty( $settings['include_posts_titles'] ) ) {
+			$args['post__in'] = $settings['include_posts_titles'];  // Include posts by IDs from selected titles
+		}
+
+		// Exclude by post title
+		if ( 'title' === $settings['exclude_posts_by'] && ! empty( $settings['exclude_posts_titles'] ) ) {
+			$args['post__not_in'] = $settings['exclude_posts_titles'];  // Exclude posts by IDs from selected titles
+		}
+
+		// Include by terms
+		if ( 'terms' === $settings['include_posts_by'] && ! empty( $settings['include_posts_terms'] ) ) {
+			$tax_queries = [];
+
+			foreach ( $settings['include_posts_terms'] as $term ) {
+				list( $taxonomy, $term_id ) = explode( ':', $term );
+
+				// Add each term to the tax query
+				$tax_queries[] = array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'term_id',
+					'terms'    => (int) $term_id,
+				);
+			}
+
+			// Apply the 'AND' relation to ensure all terms are matched
+			$args['tax_query'][] = array(
+				'relation' => 'AND',  // Ensure posts must match all terms across taxonomies
+				...$tax_queries       // Spread operator to add all queries
+			);
+		}
+
+		// Exclude by terms
+		if ( 'terms' === $settings['exclude_posts_by'] && ! empty( $settings['exclude_posts_terms'] ) ) {
+			$exclude_tax_queries = [];
+
+			foreach ( $settings['exclude_posts_terms'] as $term ) {
+				list( $taxonomy, $term_id ) = explode( ':', $term );
+
+				// Add each exclusion term to the tax query
+				$exclude_tax_queries[] = array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'term_id',
+					'terms'    => (int) $term_id,
+					'operator' => 'NOT IN',  // Exclude these terms
+				);
+			}
+
+			// Apply 'AND' relation to ensure all exclusion terms are applied
+			$args['tax_query'][] = array(
+				'relation' => 'AND',  // Ensure all exclude terms are processed
+				...$exclude_tax_queries // Spread operator to add all exclusion queries
+			);
+		}
+
+		// Create the query
+		$the_query = new WP_Query( $args );
+
 
         ?>
         <section class="panel-w tv-wall">
