@@ -122,7 +122,6 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 		// Return the array
 		return $posts_array;
 	}
-	
 
 	/**
 	 * Get all terms with their term IDs (keys) and prefixed names (taxonomy: term name).
@@ -154,9 +153,6 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 
 		return $terms_array;
 	}
-
-
-
 
 	/**
 	 * Register list widget controls.
@@ -415,6 +411,100 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				'selector' => '{{WRAPPER}} .border',
 			]
 		);
+
+		$this->add_responsive_control(
+			'items_height',
+			[
+				'label' => esc_html__( 'Items Height', 'textdomain' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px'],
+				'range' => [
+					'px' => [
+						'min' => 0,
+						'max' => 1000,
+						'step' => 5,
+					],
+				],
+				'default' => [
+					'unit' => 'px',
+					'size' => 292,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .link-panel.tv .overlay-wrapper' => 'height: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'text_position',
+			[
+				'label' => esc_html__( 'Text Position From Top', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px'],
+				'range' => [
+					'px' => [
+						'min' => 0,
+						'max' => 1000,
+						'step' => 5,
+					],
+				],
+				'default' => [
+					'unit' => 'px',
+					'size' => 200,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .link-panel.tv .details' => 'top: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'overlay_btn_pos',
+			[
+				'label' => esc_html__( 'Overlay Button Position From Top', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px'],
+				'range' => [
+					'px' => [
+						'min' => 0,
+						'max' => 1000,
+						'step' => 5,
+					],
+				],
+				'default' => [
+					'unit' => 'px',
+					'size' => 100,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .link-panel.tv .overlay-wrapper .overlay' => 'padding-top: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+
+		$this->add_responsive_control(
+			'text_position_overlay',
+			[
+				'label' => esc_html__( 'Overlay Text Position From Top', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px'],
+				'range' => [
+					'px' => [
+						'min' => 0,
+						'max' => 1000,
+						'step' => 5,
+					],
+				],
+				'default' => [
+					'unit' => 'px',
+					'size' => 0,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .link-panel.tv:hover .details' => 'top: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
 
 		$this->end_controls_section();
 
