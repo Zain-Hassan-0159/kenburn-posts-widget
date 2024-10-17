@@ -4,43 +4,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * KenBurn Posts.
+ * Product Posts.
  *
  *
  * @since 1.0.0
  */
-class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
+class Elementor_cpw_Widget extends \Elementor\Widget_Base {
 
 	/**
 	 * Get widget name.
 	 *
-	 * Kenburn Posts widget name.
+	 * Product Posts widget name.
 	 *
 	 * @since 1.0.0
 	 * @access public
 	 * @return string Widget name.
 	 */
 	public function get_name() {
-		return 'kbpw';
+		return 'cpw';
 	}
 
 	/**
 	 * Get widget title.
 	 *
-	 * Kenburn Posts widget title.
+	 * Product Posts widget title.
 	 *
 	 * @since 1.0.0
 	 * @access public
 	 * @return string Widget title.
 	 */
 	public function get_title() {
-		return esc_html__( 'KenBurn Posts', 'hz-widgets' );
+		return esc_html__( 'Product Posts', 'hz-widgets' );
 	}
 
 	/**
 	 * Get widget icon.
 	 *
-	 * Kenburn Posts widget icon.
+	 * Product Posts widget icon.
 	 *
 	 * @since 1.0.0
 	 * @access public
@@ -73,7 +73,7 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 	 * @return array Widget categories.
 	 */
 	public function get_categories() {
-		return [ 'kpbw-category' ];
+		return [ 'cpw-category' ];
 	}
 
 	/**
@@ -86,16 +86,13 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
-		return [ 'posts', 'kenburn', 'custom' ];
+		return [ 'posts', 'Product', 'custom' ];
 	}
 
     public function get_style_depends() {
-		return [ 'kenburn-posts-widget' ];
+		return [ 'posts-widget' ];
 	}
 
-    public function get_script_depends() {
-		return [ 'kenburn-posts-widget' ];
-	}
 
 	private function get_posts_titles_ids() {
 		// Retrieve all registered post types
@@ -188,7 +185,7 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				'type' => \Elementor\Controls_Manager::NUMBER,
 				'min' => -1,
 				'step' => 1,
-				'default' => 6,
+				'default' => 4,
 			]
 		);
 
@@ -328,10 +325,26 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
             [
                 'label' => esc_html__('Button Title', 'hz-widgets'),
                 'type' => \Elementor\Controls_Manager::TEXT,
-                'default' => esc_html__('Read full post', 'hz-widgets'),
+                'default' => esc_html__('Meer Opties', 'hz-widgets'),
                 'label_block' => true,
             ]
         );
+
+		$this->add_control(
+			'btn_link',
+			[
+				'label' => esc_html__( 'Button Link', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::URL,
+				'options' => [ 'url', 'is_external', 'nofollow' ],
+				'default' => [
+					'url' => '',
+					'is_external' => true,
+					'nofollow' => true,
+					// 'custom_attributes' => '',
+				],
+				'label_block' => true,
+			]
+		);
 
 	
 		$this->end_controls_section();
@@ -352,7 +365,31 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				'global' => [
 					'default' => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_ACCENT,
 				],
-				'selector' => '{{WRAPPER}} .link-panel.tv .details h4',
+				'selector' => '{{WRAPPER}} .products .product .text h2',
+			]
+		);
+
+        $this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name' => 'content_typography',
+                'label' => esc_html__( 'Content Typography', 'hz-widgets' ),
+				'global' => [
+					'default' => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_ACCENT,
+				],
+				'selector' => '{{WRAPPER}} .products .product .text p',
+			]
+		);
+        
+        $this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name' => 'cat_btn_typography',
+                'label' => esc_html__( 'Cat Button Typography', 'hz-widgets' ),
+				'global' => [
+					'default' => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_ACCENT,
+				],
+				'selector' => '{{WRAPPER}} .products .product .image a',
 			]
 		);
         
@@ -360,11 +397,11 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 			\Elementor\Group_Control_Typography::get_type(),
 			[
 				'name' => 'btn_typography',
-                'label' => esc_html__( 'Button Typography', 'hz-widgets' ),
+                'label' => esc_html__( 'Link Typography', 'hz-widgets' ),
 				'global' => [
 					'default' => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_ACCENT,
 				],
-				'selector' => '{{WRAPPER}} .link-panel .btn',
+				'selector' => '{{WRAPPER}} .products .product .call_to_action a',
 			]
 		);
         
@@ -375,7 +412,43 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				'type' => \Elementor\Controls_Manager::COLOR,
 				'default' => '',
 				'selectors' => [
-					'{{WRAPPER}} .link-panel.tv .details h4' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .products .product .text h2' => 'color: {{VALUE}};',
+				],
+			]
+		);
+        
+		$this->add_control(
+			'content_color',
+			[
+				'label' => esc_html__( 'Title Color', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '',
+				'selectors' => [
+					'{{WRAPPER}} .products .product .text p' => 'color: {{VALUE}};',
+				],
+			]
+		);
+        
+		$this->add_control(
+			'cat_btn_title_color',
+			[
+				'label' => esc_html__( 'Cat Title Color', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '',
+				'selectors' => [
+					'{{WRAPPER}} .products .product .image a' => 'color: {{VALUE}};',
+				],
+			]
+		);
+        
+		$this->add_control(
+			'cat_btnbg_color',
+			[
+				'label' => esc_html__( 'Cat Bg Color', 'hz-widgets' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '',
+				'selectors' => [
+					'{{WRAPPER}} .products .product .image a' => 'background-color: {{VALUE}};',
 				],
 			]
 		);
@@ -387,7 +460,7 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				'type' => \Elementor\Controls_Manager::COLOR,
 				'default' => '',
 				'selectors' => [
-					'{{WRAPPER}} .link-panel .btn' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .products .product .call_to_action a' => 'color: {{VALUE}};',
 				],
 			]
 		);
@@ -399,23 +472,15 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				'type' => \Elementor\Controls_Manager::COLOR,
 				'default' => '',
 				'selectors' => [
-					'{{WRAPPER}} .link-panel .btn' => 'background-color: {{VALUE}};',
+					'{{WRAPPER}} .products .product .call_to_action a' => 'background-color: {{VALUE}};',
 				],
-			]
-		);
-
-		$this->add_group_control(
-			\Elementor\Group_Control_Border::get_type(),
-			[
-				'name' => 'border_content',
-				'selector' => '{{WRAPPER}} .border',
 			]
 		);
 
 		$this->add_responsive_control(
 			'items_height',
 			[
-				'label' => esc_html__( 'Items Height', 'textdomain' ),
+				'label' => esc_html__( 'Items Height', 'hz-widgets' ),
 				'type' => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => [ 'px'],
 				'range' => [
@@ -427,84 +492,13 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 				],
 				'default' => [
 					'unit' => 'px',
-					'size' => 292,
+					'size' => 355,
 				],
 				'selectors' => [
-					'{{WRAPPER}} .link-panel.tv .overlay-wrapper' => 'height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .products .product .image' => 'min-height: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
-
-		$this->add_responsive_control(
-			'text_position',
-			[
-				'label' => esc_html__( 'Text Position From Top', 'hz-widgets' ),
-				'type' => \Elementor\Controls_Manager::SLIDER,
-				'size_units' => [ 'px'],
-				'range' => [
-					'px' => [
-						'min' => 0,
-						'max' => 1000,
-						'step' => 5,
-					],
-				],
-				'default' => [
-					'unit' => 'px',
-					'size' => 200,
-				],
-				'selectors' => [
-					'{{WRAPPER}} .link-panel.tv .details' => 'top: {{SIZE}}{{UNIT}};',
-				],
-			]
-		);
-
-		$this->add_responsive_control(
-			'overlay_btn_pos',
-			[
-				'label' => esc_html__( 'Overlay Button Position From Top', 'hz-widgets' ),
-				'type' => \Elementor\Controls_Manager::SLIDER,
-				'size_units' => [ 'px'],
-				'range' => [
-					'px' => [
-						'min' => 0,
-						'max' => 1000,
-						'step' => 5,
-					],
-				],
-				'default' => [
-					'unit' => 'px',
-					'size' => 100,
-				],
-				'selectors' => [
-					'{{WRAPPER}} .link-panel.tv .overlay-wrapper .overlay' => 'padding-top: {{SIZE}}{{UNIT}};',
-				],
-			]
-		);
-
-
-		$this->add_responsive_control(
-			'text_position_overlay',
-			[
-				'label' => esc_html__( 'Overlay Text Position From Top', 'hz-widgets' ),
-				'type' => \Elementor\Controls_Manager::SLIDER,
-				'size_units' => [ 'px'],
-				'range' => [
-					'px' => [
-						'min' => 0,
-						'max' => 1000,
-						'step' => 5,
-					],
-				],
-				'default' => [
-					'unit' => 'px',
-					'size' => 0,
-				],
-				'selectors' => [
-					'{{WRAPPER}} .link-panel.tv:hover .details' => 'top: {{SIZE}}{{UNIT}};',
-				],
-			]
-		);
-
 
 		$this->end_controls_section();
 
@@ -608,61 +602,52 @@ class Elementor_kpbw_Widget extends \Elementor\Widget_Base {
 
 
         ?>
-        <section class="panel-w tv-wall">
-            <div id="tv-grid" class="row apop border" style="opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0);">
-                <div class="items">
-                    <?php
-                        if( $the_query->have_posts() ) :
-                            while( $the_query->have_posts() ): $the_query->the_post();
-                            $post_id = get_the_ID();
-                            $post_image = get_the_post_thumbnail_url();
-                            $post_title = get_the_title();
-                            ?>
-                            <div class="col-sm-4 item border">
-                                <a href="<?php echo get_the_permalink(); ?>"
-                                    data-background="home<?php echo $post_id; ?>" class="link-panel tv show">
-                                    <div class="overlay-wrapper"
-                                        style="background-image: url('<?php echo $post_image; ?>');"
-                                        data-ll-status="loaded">
-                                        <div class="details">
-                                            <h4 data-fontsize="18" style="--fontSize: 18; line-height: 1.1; --minFontSize: 18;"
-                                                data-lineheight="19.8px" class="fusion-responsive-typography-calculated"><?php echo $post_title; ?></h4>
-                                        </div>
-                                        <div class="overlay-grad"></div>
-                                        <div class="overlay">
-                                            <div class="btn btn-white btn-md"
-                                                style="opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0);"><?php echo $settings['btn_title']; ?></div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <?php
-                            
-                        endwhile;
-                            wp_reset_postdata();
-                        endif;
-                    ?>
-                </div>
+		<div class="products">
+		<?php
+			if( $the_query->have_posts() ) :
+				while( $the_query->have_posts() ): $the_query->the_post();
+				$post_id = get_the_ID();
+				$post_image = get_the_post_thumbnail_url();
+				$post_title = get_the_title();
+				$terms = get_the_terms( get_the_ID(), 'product-categories' );
+				?>
+				<div class="product">
+					<div class="image">
+					<img src="<?php echo $post_image; ?>" alt="<?php echo $post_title; ?>">
+					<?php
+					if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
 
-                <div class="bgs">
-                    <?php
-                        if( $the_query->have_posts() ) :
-                            while( $the_query->have_posts() ): $the_query->the_post();
-                            $post_id = get_the_ID();
-                            $post_image = get_the_post_thumbnail_url();
-                            ?>
-                            <div id="home<?php echo $post_id; ?>" class="bg"
-                                style="background-image: url('<?php echo $post_image; ?>');" >
-                            </div>
-                            <?php
-                            
-                        endwhile;
-                            wp_reset_postdata();
-                        endif;
-                    ?>
-                </div>
-            </div>
-        </section>
+						foreach ( $terms as $term ) {
+							// Output the category name with link
+							echo '<a class="cat" href="' . esc_url( get_term_link( $term ) ) . '">' . esc_html( $term->name ) . '</a>';
+							break;
+						}
+					}
+					?>
+					</div>
+					<div class="text">
+						<h2><?php echo $post_title; ?></h2>
+						<p><?php echo get_the_excerpt(); ?></p>
+					</div>
+					<div class="call_to_action">
+					<div class="cart">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+					</div>
+					<?php
+					if ( ! empty( $settings['btn_link']['url'] ) ) {
+						$link = $settings['btn_link']['url'] . '?prod_id=' . $post_id;
+					}
+					?>
+					<a href="<?php echo $link; ?>" ><?php echo $settings['btn_title']; ?></a>
+					</div>
+				</div>
+				<?php
+				
+			endwhile;
+				wp_reset_postdata();
+			endif;
+		?>
+		</div>
 		<?php
 	}
 
